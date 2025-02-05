@@ -53,12 +53,24 @@ def get_has_international(text):
             return True
     return False
 
-def split_bills(filename):
-    # get current date as yyyy-mm-dd-hh-mm-ss
-    
+def write_bill_to_excel(bill, row, worksheet):
+    worksheet.write(row, 0, bill["bill_number"])
+    worksheet.write(row, 1, bill["account_number"])
+    worksheet.write(row, 2, bill["customer_name"])
+    worksheet.write(row, 3, bill["total"])
+    worksheet.write(row, 4, bill["vat"])
+    worksheet.write(row, 5, bill["total_with_vat"])
+    worksheet.write(row, 6, bill["has_international"])
+
+    return worksheet
+
+def create_dir(filename):
     dir_name = os.path.dirname(os.path.abspath(filename)) +  "/facturas-" + datetime.today().strftime('%Y-%m-%d-%H-%M-%S')
     os.mkdir(dir_name)
-    reader = PdfReader(filename)
+
+    return dir_name
+
+def initialize_excel(dir_name):
     workbook = xlsxwriter.Workbook(dir_name + '/facturas.xlsx')
     worksheet = workbook.add_worksheet()
     bold = workbook.add_format({'bold': True})
@@ -70,46 +82,56 @@ def split_bills(filename):
     worksheet.write(0, 5, "Total", bold)
     worksheet.write(0, 6, "Internacionales", bold)
 
+    return { "workbook": workbook, "worksheet": worksheet }
+
+def is_first_page(text):
+    return text[:9] == "Factura :"
+
+def previous_open_file(new_file):
+    return new_file != None
+
+def extract_values(bill_text):
+    return {
+        "bill_number": get_bill_number(bill_text),
+        "account_number": get_account_number(bill_text),
+        "customer_name": get_customer_name(bill_text),
+        "total": get_bill_amount(bill_text),
+        "vat": get_bill_vat(bill_text),
+        "total_with_vat": get_bill_total_with_vat(bill_text),
+        "bill_date": get_bill_date(bill_text),
+        "has_international": get_has_international(bill_text)
+    }
+
+def write_pdf(dir_name, new_file, bill):
+    new_file.write(dir_name + "/" + clean_filename(f"{bill['account_number']}_{bill['customer_name']}_{bill['bill_date']}") + ".pdf")
+
+def split_bills(filename):
+    dir_name = create_dir(filename)
+    reader = PdfReader(filename)
+    excel = initialize_excel(dir_name)
+    workbook = excel["workbook"]
+    worksheet = excel["worksheet"]
+
     new_file = None
     bill_text = ""
     row = 0
-
     for page in reader.pages:
         text = page.extract_text()
-        if text[:9] == "Factura :":
-            if new_file != None:
-                bill_number = get_bill_number(bill_text)
-                account_number = get_account_number(bill_text)
-                customer_name = get_customer_name(bill_text)
-                total = get_bill_amount(bill_text)
-                vat = get_bill_vat(bill_text)
-                total_with_vat = get_bill_total_with_vat(bill_text)
-                bill_date = get_bill_date(bill_text)
-                has_international = get_has_international(bill_text)
-
-                new_file.write(dir_name + "/" + clean_filename(f"{account_number}_{customer_name}_{bill_date}") + ".pdf")
+        if is_first_page(text):
+            if previous_open_file(new_file):
+                bill = extract_values(bill_text)
                 bill_text = ""
                 row += 1
-                worksheet.write(row, 0, bill_number)
-                worksheet.write(row, 1, account_number)
-                worksheet.write(row, 2, customer_name)
-                worksheet.write(row, 3, total)
-                worksheet.write(row, 4, vat)
-                worksheet.write(row, 5, total_with_vat)
-                worksheet.write(row, 6, has_international)
+                write_pdf(dir_name, new_file, bill)
+                worksheet = write_bill_to_excel(bill, row, worksheet)
+
             new_file = PdfWriter()
 
         bill_text += text
         new_file.add_page(page)
 
-    new_file.write(dir_name + "/" + clean_filename(f"{account_number}_{customer_name}_{bill_date}") + ".pdf")
-    worksheet.write(row, 0, bill_number)
-    worksheet.write(row, 1, account_number)
-    worksheet.write(row, 2, customer_name)
-    worksheet.write(row, 3, total)
-    worksheet.write(row, 4, vat)
-    worksheet.write(row, 5, total_with_vat)
-    worksheet.write(row, 6, get_has_international(bill_text))
+    write_pdf(dir_name, new_file, bill)
+    write_bill_to_excel(bill, row, worksheet)
 
     workbook.close()
 
@@ -120,16 +142,14 @@ def select_file():
     )
 
     filename = fd.askopenfilename(
-        title='Open a file',
+        title='Buscar facturas',
         initialdir='/',
         filetypes=filetypes)
     
     split_bills(filename)
-
     messagebox.showinfo(title="Facturas separadas", message="Las facturas se han separado correctamente.")
     root.quit()
 
-# open button
 open_button = tk.Button(
     root,
     text='Buscar facturas',
