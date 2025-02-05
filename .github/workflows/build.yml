@@ -26,8 +26,9 @@ jobs:
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: ${{ steps.pyinstaller.outputs.executable_path }}
+          artifacts: ${{ steps.pyinstaller.outputs.executable_path + '/*' }}
           tag: ${{env.NOW}}
+          token: ${{ secrets.GITHUB_TOKEN }}
           body: |
             This is the release body
         
