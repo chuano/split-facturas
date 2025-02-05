@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Put current date into a variable
         run: |
-          $NOW=& Get-Date -format yyyy-MM-dd-HH-mm-ss
+          $NOW=& Get-Date -format yyyyMMddHHmmss
           echo "NOW=$NOW" >> $env:GITHUB_ENV
 
       - name: Checkout
@@ -43,6 +43,5 @@ jobs:
           artifacts: './dist/SplitFacturas.zip'
           tag: ${{env.NOW}}
           token: ${{ secrets.GITHUB_TOKEN }}
-          body: |
-            This is the release body
+          body: 'New release ${{env.NOW}}'
         
