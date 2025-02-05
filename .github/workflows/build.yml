@@ -10,6 +10,9 @@ jobs:
     runs-on: windows-2025
     permissions: write-all
     steps:
+      - name: Put artifact name
+        run: echo "ARTIFACT_NAME=SplitFacturas" >> $env:GITHUB_ENV
+
       - name: Put current date into a variable
         run: |
           $NOW=& Get-Date -format yyyyMMddHHmmss
@@ -31,17 +34,17 @@ jobs:
         run: python -m pip install PyInstaller
 
       - name: Run PyInstaller
-        run: python -m PyInstaller --name SplitFacturas --windowed --onefile src/main.py
+        run: python -m PyInstaller --name ${{env.ARTIFACT_NAME}} --windowed --onefile src/main.py
 
       - name: Zip output
-        run: Compress-Archive -Path SplitFacturas.exe -Destination SplitFacturas.zip
+        run: Compress-Archive -Path ${{env.ARTIFACT_NAME}}.exe -Destination ${{env.ARTIFACT_NAME}}.zip
         working-directory: './dist'
 
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: './dist/SplitFacturas.zip'
+          artifacts: './dist/${{env.ARTIFACT_NAME}}.zip'
           tag: ${{env.NOW}}
           token: ${{ secrets.GITHUB_TOKEN }}
-          body: 'New release ${{env.NOW}}'
+          body: '${{env.ARTIFACT_NAME}} new release ${{env.NOW}}'
         
