@@ -1,54 +1,28 @@
-name: Build Workflow
-
+name: Build release
 on:
   push:
-#    branches: master
+    branches: [ main ]
+
+  workflow_dispatch:
 
 jobs:
-  build-windows:
-    runs-on: windows-2019
+  pyinstaller-build:
+    runs-on: windows-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-      - name: Install Python
-        uses: actions/setup-python@v1
+      - name: Create Executable
+        id: pyinstaller
+        uses: sayyid5416/pyinstaller@v1
         with:
-          python-version: '3.13'
-          architecture: 'x64'
-      - name: Install requirements
-        run: |
-          pip install -r requirements.txt
-      - name: Run PyInstaller
-        run: |
-          python -m PyInstaller --name "SplitFacturas" --windowed --onefile src/main.py
-      - uses: actions/upload-artifact@v2
+          python_ver: '3.13'
+          spec: 'src/main.py'
+          requirements: 'requirements.txt'
+          upload_exe_with_name: 'SplitFacturas'
+          options: --onefile, --name "SplitFacturas", --windowed, 
+
+      - name: Create release
+        uses: ncipollo/release-action@v1
         with:
-          name: Windows_qwiklabs
-          path: dist/qwiklab_badge_checker.exe
-      - name: Put current date into a variable
-        run: |
-          $NOW=& Get-Date -format yyyy-MM-dd-HH-mm
-          echo "NOW=$NOW" >> $env:GITHUB_ENV
-      - name: create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{env.NOW}}
-          release_name: ${{env.NOW}}
-          overwrite: true
+          artifacts: ${{ steps.pyinstaller.outputs.executable_path }}
           body: |
-            Test Release v${{env.NOW}}
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: dist/qwiklab_badge_checker.exe
-          asset_name: Qwiklab-Badge-Checker-Windows-amd64.exe
-          asset_content_type: application/zip
+            This is the release body
+        
