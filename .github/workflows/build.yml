@@ -9,6 +9,10 @@ jobs:
   pyinstaller-build:
     runs-on: windows-latest
     steps:
+      - name: Put current date into a variable
+        run: |
+          $NOW=& Get-Date -format yyyy-MM-dd-HH:ss
+          echo "NOW=$NOW" >> $env:GITHUB_ENV
       - name: Create Executable
         id: pyinstaller
         uses: sayyid5416/pyinstaller@v1
@@ -23,6 +27,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: ${{ steps.pyinstaller.outputs.executable_path }}
+          tag: ${{env.NOW}}
           body: |
             This is the release body
         
