@@ -62,8 +62,6 @@ def write_bill_to_excel(bill, row, worksheet):
     worksheet.write(row, 5, bill["total_with_vat"])
     worksheet.write(row, 6, bill["has_international"])
 
-    return worksheet
-
 def create_dir(filename):
     dir_name = os.path.dirname(os.path.abspath(filename)) +  "/facturas-" + datetime.today().strftime('%Y-%m-%d-%H-%M-%S')
     os.mkdir(dir_name)
@@ -123,13 +121,16 @@ def split_bills(filename):
                 bill_text = ""
                 row += 1
                 write_pdf(dir_name, new_file, bill)
-                worksheet = write_bill_to_excel(bill, row, worksheet)
+                write_bill_to_excel(bill, row, worksheet)
 
             new_file = PdfWriter()
 
         bill_text += text
         new_file.add_page(page)
 
+    bill = extract_values(bill_text)
+    bill_text = ""
+    row += 1
     write_pdf(dir_name, new_file, bill)
     write_bill_to_excel(bill, row, worksheet)
 
