@@ -38,7 +38,7 @@ def get_bill_vat(text):
     lines = text.split("\n")
     for index, line in enumerate(lines):
         if "IVA @" in line:
-            return float(lines[index + 1].strip())
+            return float(lines[index + 4].strip())
 
 def get_bill_total_with_vat(text):
     lines = text.split("\n")
