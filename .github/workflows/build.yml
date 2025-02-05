@@ -27,7 +27,8 @@ jobs:
 
       - name: Zip output
         uses: montudor/action-zip@v1
-        run: zip -qq -r SplitFacturas.zip SplitFacturas.exe
+        with:
+          args: zip -qq -r SplitFacturas.zip SplitFacturas.exe
         working-directory: ${{ steps.pyinstaller.outputs.executable_path }}
 
       - name: Create release
