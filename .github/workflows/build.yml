@@ -26,10 +26,8 @@ jobs:
           options: --onefile, --name "SplitFacturas", --windowed, 
 
       - name: Zip output
-        uses: montudor/action-zip@v1
-        with:
-          args: zip -qq -r SplitFacturas.zip SplitFacturas.exe
-          working-directory: ${{ steps.pyinstaller.outputs.executable_path }}
+        run: Compress-Archive -Path SplitFacturas.exe -Destination SplitFacturas.zip
+        working-directory: ${{ steps.pyinstaller.outputs.executable_path }}
 
       - name: Create release
         uses: ncipollo/release-action@v1
