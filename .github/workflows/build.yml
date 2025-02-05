@@ -9,10 +9,9 @@ jobs:
   pyinstaller-build:
     runs-on: windows-2025
     permissions: write-all
+    env:
+      ARTIFACT_NAME: SplitFacturas
     steps:
-      - name: Put artifact name
-        run: echo "ARTIFACT_NAME=SplitFacturas" >> $env:GITHUB_ENV
-
       - name: Put current date into a variable
         run: |
           $NOW=& Get-Date -format yyyyMMddHHmmss
