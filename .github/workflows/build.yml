@@ -14,6 +14,7 @@ jobs:
         run: |
           $NOW=& Get-Date -format yyyy-MM-dd-HH-mm-ss
           echo "NOW=$NOW" >> $env:GITHUB_ENV
+
       - name: Create Executable
         id: pyinstaller
         uses: sayyid5416/pyinstaller@v1
@@ -24,10 +25,14 @@ jobs:
           upload_exe_with_name: 'SplitFacturas'
           options: --onefile, --name "SplitFacturas", --windowed, 
 
+      - name: Zip output
+        run: zip -qq -r SplitFacturas.zip SplitFacturas.exe
+        working-directory: ${{ steps.pyinstaller.outputs.executable_path }}
+
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: '${{ steps.pyinstaller.outputs.executable_path }}/*'
+          artifacts: '${{ steps.pyinstaller.outputs.executable_path }}/SplitFacturas.zip'
           tag: ${{env.NOW}}
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
