@@ -7,11 +7,12 @@ on:
 
 jobs:
   pyinstaller-build:
-    runs-on: windows-latest
+    runs-on: windows-2025
+    permissions: write-all
     steps:
       - name: Put current date into a variable
         run: |
-          $NOW=& Get-Date -format yyyy-MM-dd-HH:ss
+          $NOW=& Get-Date -format yyyy-MM-dd-HH-mm-ss
           echo "NOW=$NOW" >> $env:GITHUB_ENV
       - name: Create Executable
         id: pyinstaller
