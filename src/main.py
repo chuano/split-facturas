@@ -57,10 +57,13 @@ def write_bill_to_excel(bill, row, worksheet):
     worksheet.write(row, 0, bill["bill_number"])
     worksheet.write(row, 1, bill["account_number"])
     worksheet.write(row, 2, bill["customer_name"])
-    worksheet.write(row, 3, bill["total"])
-    worksheet.write(row, 4, bill["vat"])
-    worksheet.write(row, 5, bill["total_with_vat"])
-    worksheet.write(row, 6, bill["has_international"])
+    worksheet.write(row, 3, bill["bill_date"][6:10] + "/" + bill["bill_date"][4:6] + "/" + bill["bill_date"][0:4])
+    worksheet.write(row, 4, 'SERVICIOS LOGÍSTICOS PALL-EX IBERIA')
+    worksheet.write(row, 5, bill["total"])
+    worksheet.write(row, 6, 'PALLEX')
+    worksheet.write(row, 7, bill["vat"])
+    worksheet.write(row, 8, bill["total_with_vat"])
+    worksheet.write(row, 9, bill["has_international"])
 
 def create_dir(filename):
     dir_name = os.path.dirname(os.path.abspath(filename)) +  "/facturas-" + datetime.today().strftime('%Y-%m-%d-%H-%M-%S')
@@ -75,10 +78,13 @@ def initialize_excel(dir_name):
     worksheet.write(0, 0, "Factura", bold)
     worksheet.write(0, 1, "Cuenta", bold)
     worksheet.write(0, 2, "Cliente", bold)
-    worksheet.write(0, 3, "Total neto", bold)
-    worksheet.write(0, 4, "IVA", bold)
-    worksheet.write(0, 5, "Total", bold)
-    worksheet.write(0, 6, "Internacionales", bold)
+    worksheet.write(0, 3, "Fecha", bold)
+    worksheet.write(0, 4, "Mercancía", bold)
+    worksheet.write(0, 5, "Precio", bold)
+    worksheet.write(0, 6, "Matrícula", bold)
+    worksheet.write(0, 7, "IVA", bold)
+    worksheet.write(0, 8, "Total", bold)
+    worksheet.write(0, 9, "Internacionales", bold)
 
     return { "workbook": workbook, "worksheet": worksheet }
 
