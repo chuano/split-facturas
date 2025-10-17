@@ -107,7 +107,12 @@ def extract_values(bill_text):
     }
 
 def write_pdf(dir_name, new_file, bill):
-    new_file.write(dir_name + "/" + clean_filename(f"{bill['account_number']}_{bill['customer_name']}_{bill['bill_date']}") + ".pdf")
+    sufix = 0
+    filenamefinal_sufix = dir_name + "/" + clean_filename(f"{bill['account_number']}_{bill['customer_name']}_{bill['bill_date']}_{sufix}") + ".pdf"
+    if os.path.exists(filenamefinal_sufix):
+        sufix += 1
+    filenamefinal_sufix = dir_name + "/" + clean_filename(f"{bill['account_number']}_{bill['customer_name']}_{bill['bill_date']}_{sufix}") + ".pdf"
+    new_file.write(filenamefinal_sufix)
 
 def split_bills(filename):
     dir_name = create_dir(filename)
